@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * @author WinnieTrandinh
  *
  */
-public class BlobCreator {
+public class BlobCreator extends Blob{
 
 	//ArrayList<Coordinate> gammaPixels; 
 	//ArrayList<Blob> blobs = new ArrayList<Blob>();
@@ -17,8 +17,8 @@ public class BlobCreator {
 	/**
 	 * 
 	 */
-	public BlobCreator() {
-		
+	public BlobCreator(Coordinate coord) {
+		super(coord);
 	}
 	
 	public static ArrayList<Blob> createBlobs(ArrayList<Coordinate> pixels) {
@@ -46,10 +46,10 @@ public class BlobCreator {
 		}*/
 		
 		if (pixels.size() > 1) {
-			addBlob(pixels, blobs, blobCheck, 1, 0);
+			addBlob(pixels, blobs, blobCheck, 0, 1);
 		}
 		
-		System.out.println("number of blobs = " + blobs.size() );
+		//System.out.println("number of blobs = " + blobs.size() );
 		
 		return blobs;
 	}
@@ -57,6 +57,11 @@ public class BlobCreator {
 	private static void addBlob(ArrayList<Coordinate> pixels, ArrayList<Blob> blobs, 
 						 ArrayList<Boolean> blobCheck, int bIndex, int pIndex) {
 		boolean added = false;
+		
+		//System.out.println("pixels = " + pIndex + "/" + pixels.size() );
+		//System.out.println("blobs = " + bIndex + "/" + blobs.size() );
+
+		
 		if (blobs.get(bIndex).isPartOf(pixels.get(pIndex) ) ) {
 			//pixel is a part of the blob
 			blobs.get(bIndex).addToBlob(pixels.get(pIndex) );
@@ -75,9 +80,10 @@ public class BlobCreator {
 		    return;
 		}
 		
+		//System.out.println("bIndex = " + bIndex + " blobSize = " + blobs.size() );
 		if (bIndex == blobs.size()-1) {
 			//next pixel
-			addBlob(pixels, blobs, blobCheck, bIndex, pIndex+1);
+			addBlob(pixels, blobs, blobCheck, 0, pIndex+1);
 		} else {
 			if (!added) {
 				//next blob

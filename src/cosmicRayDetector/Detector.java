@@ -73,7 +73,7 @@ public class Detector {
 		int green = (bgr >>8 ) & 0x000000FF;
 		int red = (bgr) & 0x000000FF;
 		
-		if (blue < 50 && green < 50 && red < 50) {
+		if (blue < threshold && green < threshold && red < threshold) {
 			return true;
 		}
 		return false;
@@ -120,6 +120,20 @@ public class Detector {
 		//System.out.println(gammaPixels.size());
 		
 		ArrayList<Blob> blobs = BlobCreator.createBlobs(gammaPixels);
+		System.out.println("number of blobs = " + blobs.size() );
+		
+		Panel panel = new Panel(image);
+		
+		for (Blob blob : blobs) {
+			Graphics g = image.getGraphics();
+		    g.setColor(Color.BLACK);
+		    Coordinate min = blob.getMin();
+		    g.drawRect(min.getX(), min.getY(), (int)blob.getWidth(), (int)blob.getHeight() );
+		    g.dispose();
+		}
+				
+		Screen.addToFrame(panel);
+
 	}
 	
 	

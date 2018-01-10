@@ -96,6 +96,10 @@ public class Screen {
 		
 		//frame.pack();
 		frame.setVisible(true);
+		
+		//panel.repaint();
+		//panel.update();
+		
 	}
 	
 	

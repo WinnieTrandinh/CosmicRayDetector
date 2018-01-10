@@ -12,12 +12,12 @@ import java.util.ArrayList;
 public class Blob {
 
 	// stores all the coords that are a part of this blob
-	ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
+	private ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
 	// size of the blob
-	int width;
-	int height;
+	private int width;
+	private int height;
 	// the blob's center location
-	Coordinate center;
+	private Coordinate center;
 	// used to delete blobs when merging two blobs
 	private boolean deleted = false;
 	// coordinates of the top left and bottom right corner
@@ -53,7 +53,7 @@ public class Blob {
 		height = 1;
 	}
 
-	boolean isPartOf(Coordinate p) {
+	protected boolean isPartOf(Coordinate p) {
 
 		// creates a larger rectangle around the edges of the blob and sees if the coord
 		// is within that rectangle
@@ -64,12 +64,12 @@ public class Blob {
 
 	// method to see if the coord in question is already contained within the blob
 	// takes in a coord and returns a booelan
-	boolean contains(Coordinate p) {
+	protected boolean contains(Coordinate p) {
 		return coords.contains(p);
 	}
 
 	// clears all coords in the blob
-	void clear() {
+	protected void clear() {
 		coords.clear();
 	}
 
@@ -84,7 +84,7 @@ public class Blob {
 	}
 
 	// updates the coord density of the blob
-	void updateDensity() {
+	private void updateDensity() {
 		// calculations done by dividing the amount of coords in the blob by the area of
 		// the blob
 		area = width * height;
@@ -93,7 +93,7 @@ public class Blob {
 
 	// adds the coord to the blob
 	// takes in the coord that is to be added
-	void addToBlob(Coordinate p) {
+	protected void addToBlob(Coordinate p) {
 		// may not be needed
 		// if (this.contains(p)) {
 		// return;
@@ -123,7 +123,7 @@ public class Blob {
 	}
 
 	// this method draws the rectange around the blob
-	void show() {
+	private void show() {
 		/*
 	    //Coordinate topLeft = coords.get(0);
 	    //Coordinate bottomRight = coords.get(coords.size()-1);
@@ -145,29 +145,37 @@ public class Blob {
 	}
 
 	// returns the width of the rect
-	float getWidth() {
+	protected float getWidth() {
 		return maxBounds.getX() - minBounds.getX();
 	}
 
 	// returns the height of the rect
-	float getHeight() {
+	protected float getHeight() {
 		return maxBounds.getY() - minBounds.getY();
 	}
 
 	// set the blob to be deleted
-	void setDeleted() {
+	protected void setDeleted() {
 		deleted = true;
 	}
 
 	// returns whether the blob is set to be deleted
-	boolean getDeleted() {
+	protected boolean getDeleted() {
 		return deleted;
 	}
 
 	// updates other properties of the blob
-	void update() {
+	public void update() {
 		updateSize();
 		updateDensity();
+	}
+	
+	public Coordinate getMin() {
+		return minBounds;
+	}
+	
+	public Coordinate getMax() {
+		return maxBounds;
 	}
 
 }

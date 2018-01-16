@@ -27,7 +27,7 @@ public class Panel extends JPanel {
 
 	@Override
     protected void paintComponent(Graphics g) {
-		System.out.println("paintComponent called");
+		//System.out.println("paintComponent called");
 		//paints it normally
         super.paintComponent(g);
         //also paints the image in the back

@@ -81,7 +81,7 @@ public class Screen {
 	
 	public static void addToFrame(Panel _panel) {
 		frame.getContentPane().add(_panel);
-		System.out.println("panel added");
+		//System.out.println("panel added");
 		//frame.repaint();
 		/*
 		Graphics g = panel.getGraphics();

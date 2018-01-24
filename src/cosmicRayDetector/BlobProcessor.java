@@ -1,83 +1,123 @@
-/**
- * 
- */
+
 package cosmicRayDetector;
 
 import java.util.ArrayList;
 
 /**
- * @author 1trandinhwin
- *
+ * This class handles the processing of the blobs to get rid of false blobs.
+ * @author Winnie Trandinh
+ * @see Blob
  */
 public class BlobProcessor extends Blob {
 
-	private static ArrayList<Blob> blobs;
-	private static final float MAX_DISTANCE = Main.PIXELS_TO_SKIP*3;
+	//stores all the blobs
+	private ArrayList<Blob> blobs;
+	//constant to store max distance that blobs can be from each other and 
+	//still be considered one blob
+	private final float MAX_DISTANCE = Main.pixelsToSkip*3;
 	
 	
 	/**
+	 * Constructor for the class.
 	 * @param coord
 	 */
 	public BlobProcessor(Coordinate coord) {
 		super(coord);
-		// TODO Auto-generated constructor stub
 	}
 	
-	public static ArrayList<Blob> calcBlobs(ArrayList<Blob> _blobs, 
+	/**
+	 * This is the main method that is called.
+	 * <br>
+	 * It handles the start and end of the processing.
+	 * @param _blobs ArrayList of blobs.
+	 * @param MIN_DENSITY Minimum density for a blob.
+	 * @param MIN_AREA Minimum area for a blob.
+	 * @return New and processed ArrayList of blobs.
+	 */
+	public ArrayList<Blob> calcBlobs(ArrayList<Blob> _blobs, 
 									double MIN_DENSITY, double MIN_AREA) {
 		blobs = _blobs;
 		process(MIN_DENSITY, MIN_AREA);
 		return blobs;
 	}
 	
-	private static void process(double MIN_DENSITY, double MIN_AREA) {
+	/**
+	 * This is responsible for the processing of the blobs.
+	 * @param MIN_DENSITY Minimum density for a blob.
+	 * @param MIN_AREA Minimum area for a blob.
+	 */
+	private void process(double MIN_DENSITY, double MIN_AREA) {
+		//check density to get rid of alpha particles before merging
+		checkDensity(MIN_DENSITY);
+		//merge any close blobs together
 		mergeAll();
+		//deletes any false/merged blobs
 		//this delete prevents combined blobs from being checked
 		deleteAll();
-		
-		checkDensity(MIN_DENSITY);
+		//check for area
 		checkArea(MIN_AREA);
+		//delete any false blobs
 		deleteAll();
 	}
 	
-	
-	private static void checkDensity(double density) {
+	/**
+	 * This checks the blob to see if it exceeds the minimum density.
+	 * @param density Minimum density of a blob.
+	 */
+	private void checkDensity(double density) {
+		//goes through each blob and deletes them if they are too low
 		for (Blob blob : blobs) {
 			if (blob.getDensity() < density) {
-				System.out.println("density too low");
-				System.out.println("density = " + blob.getDensity() + " < " + density);
+				//System.out.println("density too low");
+				//System.out.println("density = " + blob.getDensity() + " < " + density);
 				blob.setDeleted();
 			}
 		}
 	}
 	
-	private static void checkArea(double area) {
+	/**
+	 * This checks the blob to see if it exceeds the minimum area.
+	 * @param area Minimum area for a blob.
+	 */
+	private void checkArea(double area) {
+		//goes through each blob and deletes them if they are too low
 		for (Blob blob : blobs) {
 			if (blob.getArea() < area) {
-				System.out.println("area too low");
-				System.out.println("area = " + blob.getArea() + " < " + area);
+				//System.out.println("area too low");
+				//System.out.println("area = " + blob.getArea() + " < " + area);
 				blob.setDeleted();
 			}
 		}
 	}
 	
-	private static void mergeAll() {
+	/**
+	 * Starts the merging of the blobs. Done recursively.
+	 */
+	private void mergeAll() {
 		if (blobs.size() > 1) {
 			merge(blobs.size()-2, blobs.size()-1);
 		}
 	}
 	
-	private static void deleteAll() {
+	/**
+	 * Deletes any blobs that are set to be deleted.
+	 */
+	private void deleteAll() {
 		for (int i = blobs.size()-1; i >= 0; i--) {
 			if (blobs.get(i).getDeleted() ) {
-				System.out.println("blob removed");
+				//System.out.println("blob removed");
 				blobs.remove(i);
 			}
 		}
 	}
 	
-	private static void combine(Blob a, Blob b) {
-		//make blob b bigger than blob a
+	/**
+	 * This merges the two blobs together.
+	 * @param a The first blob.
+	 * @param b The second blob.
+	 */
+	private void combine(Blob a, Blob b) {
+		//makes blob b bigger than blob a
 		Blob temp;
 		if (a.getCoordinates().size() > b.getCoordinates().size() ) {
 			//switch blobs
@@ -86,31 +126,38 @@ public class BlobProcessor extends Blob {
 			b = temp;
 		}
 		
-		System.out.println("blob combined");
+		//goes through each pixel in blob a and adds them to blob b
 		for (Coordinate coord : a.getCoordinates() ) {
-			System.out.println("pixel at (" + coord.getX() + ", " + coord.getY() + ")");
 			if (!b.contains(coord) ) {
 				b.addToBlob(coord);
 			}
 		}
-		
+		//sets blob a to be deleted
 		a.setDeleted();
 	}
 	
-	private static void merge(int a, int b) {
+	/**
+	 * Responsible for the merging of the blobs.
+	 * @param a The first blob.
+	 * @param b The second blob.
+	 */
+	private void merge(int a, int b) {
 		Blob blobA = blobs.get(a);
 		Blob blobB = blobs.get(b);
 		
+		//if neither blobs are set to be deleted
 		if ( (!blobA.getDeleted() ) && (!blobB.getDeleted() ) ) {
+			//if the blobs are within range to be considered one blob
 			if (overlapping(blobA, blobB) ) {
+				//combine the two blobs
 				combine(blobA, blobB);
 			}
 		}
-		
+		//no more blobs left, break out of recursive loop
 		if (b <= 1 && a <= 0) {
 			return;
 		}
-		
+		//checks with more blobs
 		if (a == 0) {
 			merge(b-2, b-1);
 		} else {
@@ -118,7 +165,13 @@ public class BlobProcessor extends Blob {
 		}
 	}
 	
-	private static boolean overlapping(Blob a, Blob b) {
+	/**
+	 * This checks to see if the blobs are within range to be considered one blob.
+	 * @param a The first blob.
+	 * @param b The second blob.
+	 * @return Boolean whether they are one blob or not.
+	 */
+	private boolean overlapping(Blob a, Blob b) {
 		Coordinate minA = a.getMin();
 		Coordinate minB = b.getMin();
 		Coordinate maxA = a.getMax();
@@ -130,207 +183,63 @@ public class BlobProcessor extends Blob {
 			      minA.getY()-MAX_DISTANCE <= maxB.getY() && maxB.getY() <= maxA.getY()+MAX_DISTANCE));
 	}
 	
+	/**
+	 * This determines the direction of the ray.
+	 * <br>
+	 * It breaks the blob up into nine sections and looks for the section with
+	 * the highest density.
+	 * @param blob Blob being processed.
+	 * @return Integer representing which direction it is.
+	 */
+	public int getDirection(Blob blob) {
+		//ignore PIXELS_TO_SKIP value since it is relative
+		//dimensions of smaller sections
+		double width = blob.getWidth()/3;
+		double height = blob.getHeight()/3;
+		double area = width * height;
+		
+		if (width < 1 || height < 1) {
+			//blob is too small
+			return 9;
+		}
+		
+		//stores all the pixels in the blob
+		ArrayList<Coordinate> pixels = blob.getCoordinates();
+		Coordinate minPixel = blob.getMin();
+		//each index represents the number of pixels in each section
+		int [] numPixels = new int [9];
+		double highestDensity = -1;
+		int highestSection = 4;
+		
+		//goes through each pixel and places them into the respective sections
+		for (Coordinate pixel : pixels) {
+			int x = pixel.getX() - minPixel.getX();
+			int y = pixel.getY() - minPixel.getY();
+
+			double col = Math.floor(x / width);
+			double row = Math.floor(y / height);
+			numPixels[(int) (col + (row*3) )]++;
+		}
+		
+		//finds the section with the highest density
+		for (int i = 0; i < 9; i++) {
+			double density = numPixels[i]/area;
+			//System.out.println("density of " + i + " = " + density);
+			if (density >= highestDensity && i != 4) {
+				//ignore sector 4 since that is the middle
+				highestDensity = density;
+				highestSection = i;
+			}
+		}
+		
+		
+		//returns direction with highest density
+		// 0 1 2
+		// 3 4 5
+		// 6 7 8
+		return highestSection;
+	}
+	
 	
 }
 
-
-/*
-//this class processes the blob objects
-class BlobProcessor {
-  //list of all the current blobs
-  private ArrayList<Blob> blobs;
-  //maximum distance between different blobs to be considered the same blob
-  private final float MAX_DISTANCE = pixelsToSkip * 3;
-  //minimum density of a blob
-  private final float MIN_DENSITY = 0.0;
-  //minimum area of a blob
-  private final float MIN_AREA = 80;
-  //private final float MERGE_DIST = 0;
-
-  //constructor for the class
-  //takes in a list of all the blobs
-  BlobProcessor(ArrayList<Blob> _blobs) {
-    blobs = _blobs;
-  }
-  
-  //main function called from outside the class, calls other private functions within this class
-  void process() {
-    mergeAll();
-    checkDensity();
-    checkArea();
-    deleteAll();
-  }
-
-  //checks each blob to see if the blob's density is high enough
-  private void checkDensity() {
-    for (Blob b : blobs) {
-      if (b.density < MIN_DENSITY) {
-        //If density is too low, set the blob to be deleted
-        b.setDeleted();
-      }
-    }
-  }
-  
-  
-  private void checkArea() {
-    for (Blob b : blobs) {
-      if (b.area < MIN_AREA) {//If area is too low delete blob
-        b.setDeleted();
-      }
-    }
-  }
-
-  //checks all the blobs and sees if they should be merged
-  private void mergeAll() {
-    //only runs if there is two or more blobs
-    if (blobs.size()>1) {
-      //println("Calling merge all at " + blobs.size() + " blobs");
-      //delay(500);
-      //recursive call to do checks
-      merge(blobs.size()-2, blobs.size()-1);
-    }
-  }
-
-
-  //deletes the blobs that are merged into another blob
-  private void deleteAll() {
-    /*
-    int blobSize = blobs.size(); 
-     for(int i = 0; i < blobSize; i++){
-     if (blobs.get(i).getDeleted()) {
-     blobs.remove(i);
-     blobSize--;
-     println ("Deleted Blobs");
-     }
-     }*/
-    /*
-    fill(255, 0, 0);
-     for (Blob b : blobs) {
-     b.show(255, 0, 0);
-     //println (b.pixels.size() + ", " + greenPixels.size());
-     //b.clear();
-     }
-     noFill();
-     println("before delete");
-     delay(500);
-     */ /*
-    
-     //deletes all the blobs that are set to be deleted
-    for (int i = blobs.size()-1; i >= 0; i--) {
-      if (blobs.get(i).getDeleted()) {
-        blobs.remove(i);
-        //blobSize--;
-        //println ("Deleted Blobs");
-        //delay(500);
-      }
-    }
-    
-    /*
-    for (Blob b : blobs) {
-     b.show(0, 255, 0);
-     //println (b.pixels.size() + ", " + greenPixels.size());
-     //b.clear();
-     }
-     println("after delete");
-     delay(500);
-     */ /*
-    //println("blobs after delete = " + blobs.size() );
-  }
-
-  //combines the two blobs together
-  private void combine(Blob a, Blob b) {
-    //a.show(true);
-    //b.show(true);
-    //println("before merge");
-    //delay(1000);
-    //adds all of the pixels into the second blob
-    for (Pixel p : a.pixels) {
-      //if (!b.pixels.contains(p)) {
-      b.addToBlob(p);
-      //}
-    }
-    /*
-    for (int i = 0; i < a.pixels.size(); i++) {
-     b.pixels.add(a.pixels.get(i) );
-     }*/ /*
-    //removing
-    //println ("Copied Pixels");
-    //delay(1000);
-    //a.show(true);
-    //b.show(true);
-    //delay(1000);
-    //blobs.remove(a);
-    
-    //set the first blob to be deleted
-    //cannot delete it instantly to prevent index out of bounds
-    a.setDeleted();
-  }
-
-  //main recursive call that determines if the blobs should be merged or not
-  //takes in the two blobs to be tested
-  private void merge(int a, int b) {
-    //println(a + " " + b);
-    //get the blobs according to their index on the arraylist of blobs
-    Blob blobA = blobs.get(a);
-    Blob blobB = blobs.get(b);
-    
-    //if bother blobs are not set to be deleted
-    if ((!blobA.getDeleted()) && (!blobB.getDeleted())) {
-      //calls overlapping function to return true or false
-      if (overlapping(blobA, blobB)) {
-        //if true, then combine the blobs
-        combine(blobA, blobB);
-      }
-    }
-
-    //stops the recursive call if there is no more blobs to be tested
-    if (b <= 1 && a <= 0) {
-      return;
-    }
-    
-    //calls the function again but with other blobs
-    if (a == 0) {
-      //println("case 1 " + a + " " + b);
-      merge(b-2, b-1);
-    } else {
-      //println("case 2 = " + a + " " + b);
-      merge(a-1, b);
-    }
-  }
-
-  //determines if the blobs should be considered one blob or two
-  //takes in the two blobs and returns a boolean
-  private boolean overlapping(Blob a, Blob b) {
-    //sets min and max bounds for each blob
-    PVector minA = a.minBounds;
-    PVector minB = b.minBounds;
-    PVector maxA = a.maxBounds;
-    PVector maxB = b.maxBounds;
-    //boolean isOverlapping = false;
-
-    //creates two larger rectangles around each blob and sees if they overlap
-    //returns the outcome
-    return ((minA.x-MAX_DISTANCE <= minB.x && minB.x <= maxA.x+MAX_DISTANCE ||
-      minA.x-MAX_DISTANCE <= maxB.x && maxB.x <= maxA.x+MAX_DISTANCE) &&
-      (minA.y-MAX_DISTANCE <= minB.y && minB.y <= maxA.y+MAX_DISTANCE ||
-      minA.y-MAX_DISTANCE <= maxB.y && maxB.y <= maxA.y+MAX_DISTANCE));
-  }
-  
-  //sorts all the blobs by area
-  //unfinished...
-  private void sortByArea(){
-    
-   for(int i = 0; i<blobs.size();i++){
-     //unfinished
-   }
-  }
-  
-  //returns the blobs that represent the real object
-  ArrayList<Blob> getRealBlobs(){
-      ArrayList<Blob> blobs = new ArrayList<Blob>();
-      return blobs;
-  } 
-
-}
-
-*/

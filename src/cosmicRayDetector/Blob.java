@@ -1,9 +1,6 @@
 package cosmicRayDetector;
 import java.util.ArrayList;
 
-/**
- * 
- */
 
 /**
  * @author WinnieTrandinh
@@ -11,7 +8,7 @@ import java.util.ArrayList;
  */
 public class Blob {
 
-	// stores all the coords that are a part of this blob
+	// stores all the coordinates that are a part of this blob
 	private ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
 	// size of the blob
 	private int width;
@@ -28,53 +25,61 @@ public class Blob {
 	private double density;
 	// area of the blob
 	private double area;
-	// the maximum distance of the coord in question to be still considered a part
+	// the maximum distance of the pixels in question to be still considered a part
 	// of the blob
 	// used to determine if the coord is part of a new blob or this blob
-	private final int PIXELS_TO_SKIP = Main.PIXELS_TO_SKIP;
+	private final int PIXELS_TO_SKIP = Main.pixelsToSkip;
 	private final int TOLERANCE = PIXELS_TO_SKIP * 2;
 
 	/**
-	 * 
+	 * Constructor for the class.
+	 * @param coord First pixel of the blob.
 	 */
 	public Blob(Coordinate coord) {
-		//System.out.println("blob creation start");
-		// add given coord into the array of coords in this blob
+		// add given pixel into the array of Coordinates in this blob
 		coords.add(coord);
-		//System.out.println("coordinate added");
-		// sets initial values of the blob, given that there is only one coord
-		//System.out.println(coords.get(coords.size() / 2).getY() );
+		// sets initial values of the blob, given that there is only one pixel
 		center = new Coordinate(coords.get(coords.size() / 2).getX(), coords.get(coords.size() / 2).getY() );
-		//System.out.println("center added");
 		
 		minBounds = new Coordinate(coord.getX(), coord.getY());
 		maxBounds = new Coordinate(coord.getX(), coord.getY());
 
 		width = 1;
 		height = 1;
+		update();
 	}
 
+	/**
+	 * This determines if the pixel is a part of the blob or not.
+	 * @param p Pixel to be tested.
+	 * @return Boolean whether it is or not.
+	 */
 	protected boolean isPartOf(Coordinate p) {
-
-		// creates a larger rectangle around the edges of the blob and sees if the coord
-		// is within that rectangle
+		// creates a larger rectangle around the edges of the blob and sees if the 
+		// pixel is within that rectangle
 		return (minBounds.getX() - (TOLERANCE) <= p.getX() && p.getX() <= maxBounds.getX() + (TOLERANCE)
 				&& minBounds.getY() - (TOLERANCE) <= p.getY() && p.getY() <= maxBounds.getY() + (TOLERANCE));
-
 	}
 
-	// method to see if the coord in question is already contained within the blob
-	// takes in a coord and returns a booelan
+	/**
+	 * This determines if the blob already contains the pixel.
+	 * @param p Pixel being tested.
+	 * @return Boolean whether it is or not.
+	 */
 	protected boolean contains(Coordinate p) {
 		return coords.contains(p);
 	}
 
-	// clears all coords in the blob
+	/**
+	 * This clears the blob of all the pixels.
+	 */
 	protected void clear() {
 		coords.clear();
 	}
 
-	// updates the size of the blob
+	/**
+	 * This updates the size of the blob.
+	 */
 	private void updateSize() {
 		// calculations for size based on top left and bottom right corner
 		// adds one since a pixel is a rectangle, not a point
@@ -87,30 +92,32 @@ public class Blob {
 		//		", Density: " + density);
 	}
 
-	// updates the coord density of the blob
+	/**
+	 * This updates the density of the blob.
+	 */
 	private void updateDensity() {
 		// calculations done by dividing the amount of coords in the blob by the area of
 		// the blob
-		//area = width * height;
-		System.out.println("min = (" + minBounds.getX() + ", " + minBounds.getY() +
-				") max = (" + maxBounds.getX() + ", " + maxBounds.getY() + 
-				") width = " + width + " height = " + height + " area = " + area);
+		//System.out.println("min = (" + minBounds.getX() + ", " + minBounds.getY() +
+		//		") max = (" + maxBounds.getX() + ", " + maxBounds.getY() + 
+		//		") width = " + width + " height = " + height + " area = " + area);
 
-		//System.out.println("coords size = " + coords.size() );
-		density = ( (coords.size() * (Math.pow(Main.PIXELS_TO_SKIP, 2) ) ) / (area) );
+		density = ( (coords.size() * (Math.pow(Main.pixelsToSkip, 2) ) ) / (area) );
 	}
 
-	// adds the coord to the blob
-	// takes in the coord that is to be added
+	/**
+	 * This adds the pixel to the blob.
+	 * @param p Pixel that is to be added.
+	 */
 	protected void addToBlob(Coordinate p) {
-
-		// adds into the coord array of the blob
+		// adds into the Coordinates arrayList of the blob
 		coords.add(p);
-		// updates the center of the blob due to the added coord
-		center.setXY(coords.get(coords.size() / 2).getX(), coords.get(coords.size() / 2).getY());
+		// updates the center of the blob due to the added pixel
+		center.setXY(coords.get(coords.size() / 2).getX(), 
+					 coords.get(coords.size() / 2).getY());
 
-		// updates the min and max bounds by seeing if the new coord is outside any of
-		// these bounds
+		// updates the min and max bounds by seeing if the new coord is outside 
+		// any of these bounds
 		if (p.getX() < minBounds.getX()) {
 			minBounds.setX(p.getX());
 		}
@@ -127,76 +134,81 @@ public class Blob {
 		update();
 	}
 
-	// this method draws the rectange around the blob
-	private void show() {
-		/*
-	    //Coordinate topLeft = coords.get(0);
-	    //Coordinate bottomRight = coords.get(coords.size()-1);
-	    // fill(255 - (255*density));
-	    
-	    noFill();
-	    stroke(0);
-	    if (VisionProcessor.runType == RunType.PC) {
-	      //Coordinate topLeft = coords.get(0);
-	      //Coordinate bottomRight = coords.get(coords.size()-1);
-	      // fill(255 - (255*density));
-	      //draws a rectangle on the blank screen and on top of the camara image
-	      rect(minBounds.x, minBounds.y, maxBounds.x, maxBounds.y);
-	      rect(minBounds.x + width/2, minBounds.y, maxBounds.x + width/2, maxBounds.y);
-	    }*/
-		
-		
-		//instead of showing, return min and max and have it draw using detector's method
-	}
-
-	// returns the width of the rect
+	/**
+	 * Returns the width of the blob.
+	 * @return Width.
+	 */
 	protected float getWidth() {
-		updateSize();
-		//return maxBounds.getX() - minBounds.getX();
 		return width;
 	}
 
-	// returns the height of the rect
+	/**
+	 * Returns the height of the blob.
+	 * @return Height.
+	 */
 	protected float getHeight() {
-		updateSize();
-		//return maxBounds.getY() - minBounds.getY();
 		return height;
 	}
 
-	// set the blob to be deleted
+	/**
+	 * Sets the blob to be deleted.
+	 */
 	protected void setDeleted() {
 		deleted = true;
 	}
 
-	// returns whether the blob is set to be deleted
+	/**
+	 * Returns whether the blob is set to be deleted or not.
+	 * @return Boolean whether blob is to be deleted or not.
+	 */
 	protected boolean getDeleted() {
 		return deleted;
 	}
 
-	// updates other properties of the blob
+	/**
+	 * Updates the blob's data.
+	 */
 	private void update() {
 		updateSize();
 		updateDensity();
 	}
 	
+	/**
+	 * Returns the top left coordinate.
+	 * @return Coordinate of top left corner.
+	 */
 	public Coordinate getMin() {
 		return minBounds;
 	}
 	
+	/**
+	 * Returns the bottom right coordinate.
+	 * @return Coordinate of bottom right corner.
+	 */
 	public Coordinate getMax() {
 		return maxBounds;
 	}
 	
+	/**
+	 * Returns the density of the blob.
+	 * @return Density.
+	 */
 	protected double getDensity() {
-		update();
 		return density;
 	}
 	
+	/**
+	 * Returns the area of the blob.
+	 * @return Area.
+	 */
 	protected double getArea() {
-		updateSize();
 		return area;
 	}
 	
+	/**
+	 * Returns all the coordinates in the blob.
+	 * @return ArrayList of all the coordinates.
+	 */
 	protected ArrayList<Coordinate> getCoordinates() {
 		return coords;
 	}

@@ -1,0 +1,40 @@
+Image 9: 
+Direction = Bottom Center, Area = 360.0
+Direction = Bottom Left, Area = 364.0
+Direction = Middle Right, Area = 432.0
+
+Image 7: 
+Direction = Bottom Right, Area = 234.0
+Direction = Middle Left, Area = 220.0
+Direction = Middle Right, Area = 189.0
+Direction = Middle Left, Area = 198.0
+
+Image 5: 
+Direction = Top Center, Area = 399.0
+Direction = Middle Left, Area = 325.0
+Direction = Bottom Right, Area = 550.0
+
+Image 8: 
+Direction = Bottom Center, Area = 54.0
+Direction = Bottom Right, Area = 90.0
+Direction = Bottom Center, Area = 135.0
+Direction = Top Left, Area = 153.0
+Direction = Middle Right, Area = 110.0
+
+Image 1: 
+Direction = Bottom Right, Area = 2600.0
+
+Image 3: 
+Direction = Top Left, Area = 871.0
+
+Image 2: 
+Direction = Bottom Left, Area = 2600.0
+
+Image 4: 
+Direction = Top Center, Area = 11236.0
+
+Image 6: 
+Direction = Top Center, Area = 384.0
+Direction = Middle Left, Area = 280.0
+Direction = Middle Left, Area = 220.0
+
